@@ -1,11 +1,15 @@
 import type { NextPage } from 'next'
-import Head from 'next/head'
-import Image from 'next/image'
-import styles from '../styles/Home.module.css'
+import { PageHeader } from 'antd';
 
 const Home: NextPage = () => {
   return (
-    <p>PX</p>
+    <>
+        <PageHeader
+            className="site-page-header"
+            onBack={() => null}
+            title="Configurations"
+        />
+    </>
   )
 }
 
