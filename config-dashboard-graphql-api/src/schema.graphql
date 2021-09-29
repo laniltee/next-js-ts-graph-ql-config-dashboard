@@ -1,14 +1,42 @@
 type Query {
-    info: String!
-    feed: [Link!]!
+  configurations: [Configuration]
+  organizations: [Organization]
+  users: [User]
 }
 
 type Mutation {
-    post(url: String!, description: String!): Link!
+  post(url: String!, description: String!): Link!
 }
 
 type Link {
-    id: ID!
-    description: String!
-    url: String!
+  id: ID!
+  description: String!
+  url: String!
+}
+
+type Tag {
+  id: Float
+  createdAt: Float
+  name: String
+}
+
+type Configuration {
+  id: Float
+  createdAt: Float
+  name: String
+  description: String
+  tags: [Tag]
+}
+
+type Organization {
+  id: Float
+  name: String
+  configurations: [Configuration]
+}
+
+type User {
+  id: Float
+  name: String
+  organization: Organization
+  configurations: [Configuration]
 }
