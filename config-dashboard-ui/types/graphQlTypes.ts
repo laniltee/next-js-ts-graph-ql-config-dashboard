@@ -1,7 +1,7 @@
 export type Tag = {
   __typename: string;
   name: string;
-  id: string;
+  id: number;
 };
 
 export type ConfigurationTag = {

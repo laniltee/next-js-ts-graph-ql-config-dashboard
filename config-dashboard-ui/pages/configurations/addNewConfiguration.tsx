@@ -17,6 +17,7 @@ const TAGS_QUERY = gql`
 type ConfigurationInputs = {
   name: string;
   description: string;
+  tags?: string[];
 };
 
 const AddNewConfiguration = (): JSX.Element => {
