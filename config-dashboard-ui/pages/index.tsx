@@ -1,5 +1,5 @@
 import type { NextPage } from "next";
-import { PageHeader, Row, Col, Typography } from "antd";
+import { PageHeader, Row, Col } from "antd";
 import AddNewConfiguration from "./configurations/addNewConfiguration";
 import ConfigurationsList from "./configurations/configurationsList";
 

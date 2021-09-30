@@ -13,7 +13,9 @@ const typeDefs = fs.readFileSync(
 const resolvers = {
   Query: {
     configurations: async (parent, args, context) => {
-      return await context.prisma.configuration.findMany({include: {tags: {include: {tag: true}}}})
+      return await context.prisma.configuration.findMany({
+        include: { tags: { include: { tag: true } } },
+      });
     },
     organizations: async (parent, args, context) => {
       return context.prisma.organization.findMany();
