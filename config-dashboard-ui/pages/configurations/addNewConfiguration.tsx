@@ -1,12 +1,15 @@
-import { Button, Card, Form, Input, Typography } from "antd";
+import { Button, Card, Form, Input, Typography, Select } from "antd";
 import { useQuery, gql } from "@apollo/client";
+import { Tag } from "../../types/graphQlTypes";
 
 const { Title } = Typography;
+const { Option } = Select;
 
 const TAGS_QUERY = gql`
   {
     tags {
       name
+      id
     }
   }
 `;
@@ -25,7 +28,17 @@ const AddNewConfiguration = (): JSX.Element => {
           <Input placeholder="input placeholder" />
         </Form.Item>
         <Form.Item label="Tags">
-          <Input placeholder="input placeholder" />
+          <Select
+            mode="tags"
+            style={{ width: "100%" }}
+            placeholder="Select Tags"
+          >
+            {data?.tags.map((tag: Tag) => (
+              <Option value={tag.id} key={`tag_${tag.id}`}>
+                {tag.name}
+              </Option>
+            ))}
+          </Select>
         </Form.Item>
         <Form.Item>
           <Button type="primary" block>

@@ -1,6 +1,6 @@
 import { Card, Typography, Table, Button, Space, Tag as AntDTag } from "antd";
 import { useQuery, gql } from "@apollo/client";
-import { Configuration, Tag } from "../../types/graphQlTypes";
+import { Configuration, ConfigurationTag } from "../../types/graphQlTypes";
 
 const { Title } = Typography;
 
@@ -21,7 +21,7 @@ const columns = [
     key: "tags",
     render: (text = null, record: Configuration) => (
       <>
-        {record.tags.map((tag: Tag, index: number) => (
+        {record.tags.map((tag: ConfigurationTag, index: number) => (
           <AntDTag key={`tag_${index}`}>{tag.tag.name}</AntDTag>
         ))}
       </>
