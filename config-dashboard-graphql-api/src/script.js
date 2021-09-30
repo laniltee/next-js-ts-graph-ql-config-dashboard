@@ -6,15 +6,8 @@ const prisma = new PrismaClient();
 
 // 3
 async function main() {
-  const newLink = await prisma.link.create({
-    data: {
-      description: "Fullstack tutorial for GraphQL",
-      url: "www.howtographql.com",
-    },
-  });
-
-  const allLinks = await prisma.link.findMany();
-  console.log(allLinks);
+  const data = await prisma.configuration.findMany({ include: { tags: { include: {tag: true} } } });
+  console.log(JSON.stringify(data, null, 4));
 }
 
 // 4

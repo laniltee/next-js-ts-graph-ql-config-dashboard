@@ -5,18 +5,15 @@ const { PrismaClient } = require("@prisma/client");
 
 const prisma = new PrismaClient();
 
-let links = [
-  {
-    id: "link-0",
-    url: "www.howtographql.com",
-    description: "Fullstack tutorial for GraphQL",
-  },
-];
+const typeDefs = fs.readFileSync(
+  path.join(__dirname, "schema.graphql"),
+  "utf8"
+);
 
 const resolvers = {
   Query: {
     configurations: async (parent, args, context) => {
-      return context.prisma.configuration.findMany();
+      return await context.prisma.configuration.findMany({include: {tags: {include: {tag: true}}}})
     },
     organizations: async (parent, args, context) => {
       return context.prisma.organization.findMany();
@@ -24,16 +21,38 @@ const resolvers = {
     users: async (parent, args, context) => {
       return context.prisma.user.findMany();
     },
+    tags: async (parent, args, context) => {
+      return context.prisma.tag.findMany();
+    },
   },
   // 3
 
   Mutation: {
     // 2
-    post: (parent, args, context, info) => {
-      return context.prisma.link.create({
+    post: async (parent, args, { prisma }, info) => {
+      return prisma.link.create({
         data: {
           url: args.url,
           description: args.description,
+        },
+      });
+    },
+
+    createConfiguration: async (parent, args, { prisma }, info) => {
+      let savedTags = [];
+      if (args.tags && args.tags.length) {
+        savedTags = await prisma.tag.findMany({
+          where: {
+            name: [args.tags],
+          },
+        });
+        console.log("savedTags", savedTags);
+      }
+      return prisma.configuration.create({
+        data: {
+          name: args.name,
+          description: args.description,
+          tags: savedTags,
         },
       });
     },
@@ -42,7 +61,7 @@ const resolvers = {
 
 // 3
 const server = new ApolloServer({
-  typeDefs: fs.readFileSync(path.join(__dirname, "schema.graphql"), "utf8"),
+  typeDefs,
   resolvers,
   context: {
     prisma,

@@ -12,7 +12,8 @@
     "generate": "npx prisma generate",
     "studio": "npx prisma studio",
     "format": "npx prisma format",
-    "prepare": "cd .. && husky install config-dashboard-graphql-api/.husky"
+    "prepare": "cd .. && husky install config-dashboard-graphql-api/.husky",
+    "prettier": "npx prettier --write ."
   },
   "author": "",
   "license": "ISC",
