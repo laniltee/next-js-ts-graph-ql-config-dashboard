@@ -1,66 +1,68 @@
-import {Card, Typography, Table, Button, Space, Tag} from "antd";
+import { Card, Typography, Table, Button, Space, Tag as AntDTag } from "antd";
+import { useQuery, gql } from "@apollo/client";
+import { Configuration, Tag } from "../../types/graphQlTypes";
 
-const {Title} = Typography
-
-const dataSource = [
-    {
-        key: '1',
-        name: 'Mike',
-        age: 32,
-        address: '10 Downing Street',
-    },
-    {
-        key: '2',
-        name: 'John',
-        age: 42,
-        address: '10 Downing Street',
-    },
-];
+const { Title } = Typography;
 
 const columns = [
-    {
-        title: 'Name',
-        dataIndex: 'name',
-        key: 'name',
-    },
-    {
-        title: 'Description',
-        dataIndex: 'description',
-        key: 'description',
-    },
-    {
-        title: 'Tags',
-        dataIndex: 'tags',
-        key: 'tags',
-        render: () => (
-            <>
-                <Tag>Tag 1</Tag>
-                <Tag>Tag 1</Tag>
-            </>
-        )
-    },
-    {
-        title: 'Actions',
-        render: () => (
-            <Space>
-                <Button type="default" size="small">
-                    Edit
-                </Button>
-                <Button type="default" size="small">
-                    Delete
-                </Button>
-            </Space>
-        )
-    },
+  {
+    title: "Name",
+    dataIndex: "name",
+    key: "name",
+  },
+  {
+    title: "Description",
+    dataIndex: "description",
+    key: "description",
+  },
+  {
+    title: "Tags",
+    dataIndex: "tags",
+    key: "tags",
+    render: (text = null, record: Configuration) => (
+      <>
+        {record.tags.map((tag: Tag, index: number) => (
+          <AntDTag key={`tag_${index}`}>{tag.name}</AntDTag>
+        ))}
+      </>
+    ),
+  },
+  {
+    title: "Actions",
+    render: () => (
+      <Space>
+        <Button type="default" size="small">
+          Edit
+        </Button>
+        <Button type="default" size="small">
+          Delete
+        </Button>
+      </Space>
+    ),
+  },
 ];
 
-const ConfigurationsList = (): JSX.Element => {
-    return (
-        <Card>
-            <Title level={5}>Available Configurations</Title>
-            <Table dataSource={dataSource} columns={columns} pagination={false}/>
-        </Card>
-    )
-}
+export const CONFIGURATIONS_QUERY = gql`
+  {
+    configurations {
+      description
+      name
+      tags {
+        name
+      }
+    }
+  }
+`;
 
-export default ConfigurationsList
+const ConfigurationsList = (): JSX.Element => {
+  const { data } = useQuery(CONFIGURATIONS_QUERY);
+
+  return (
+    <Card>
+      <Title level={5}>Available Configurations</Title>
+      <Table dataSource={data?.configurations} columns={columns} />
+    </Card>
+  );
+};
+
+export default ConfigurationsList;

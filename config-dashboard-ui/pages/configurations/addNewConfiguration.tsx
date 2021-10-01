@@ -1,27 +1,150 @@
-import {Button, Card, Form, Input, Typography} from "antd";
+import { Button, Card, Form, Input, Typography, Select, Space } from "antd";
+import { useQuery, gql, useMutation } from "@apollo/client";
+import { Tag } from "../../types/graphQlTypes";
+import { CONFIGURATIONS_QUERY } from "./configurationsList";
 
-const {Title} = Typography
+const { Title } = Typography;
+const { Option } = Select;
+
+const TAGS_QUERY = gql`
+  {
+    tags {
+      name
+      id
+    }
+  }
+`;
+
+const TAGS_MUTATION = gql`
+  mutation TagsMutation($tags: [String!]!) {
+    createTags(tags: $tags) {
+      id
+      name
+    }
+  }
+`;
+
+const CONFIGURATION_MUTATION = gql`
+  mutation Mutation($name: String!, $description: String, $tags: [Int]) {
+    createConfiguration(name: $name, description: $description, tags: $tags) {
+      id
+      description
+      name
+      tags {
+        name
+      }
+    }
+  }
+`;
+
+type ConfigurationInputs = {
+  name: string;
+  description: string;
+  tags?: string[];
+};
+
+let savedTagIds: number[] = [];
 
 const AddNewConfiguration = (): JSX.Element => {
-    return (
-        <Card>
-            <Title level={5}>Add New </Title>
-            <Form layout="vertical">
-                <Form.Item label="Name">
-                    <Input placeholder="input placeholder"/>
-                </Form.Item>
-                <Form.Item label="Description">
-                    <Input placeholder="input placeholder"/>
-                </Form.Item>
-                <Form.Item label="Tags">
-                    <Input placeholder="input placeholder"/>
-                </Form.Item>
-                <Form.Item>
-                    <Button type="primary" block>Add </Button>
-                </Form.Item>
-            </Form>
-        </Card>
-    )
-}
+  const { data } = useQuery(TAGS_QUERY);
+  const [form] = Form.useForm();
 
-export default AddNewConfiguration
+  const [createTags, { loading: creatingTags }] = useMutation(TAGS_MUTATION, {
+    variables: {
+      tags: form
+        .getFieldValue("tags")
+        ?.filter((tag: string | number) => !Number.isInteger(tag)),
+    },
+    refetchQueries: [TAGS_QUERY],
+  });
+
+  const [createConfiguration, { loading: creatingConfiguration }] = useMutation(
+    CONFIGURATION_MUTATION,
+    {
+      variables: {
+        name: form.getFieldValue("name"),
+        description: form.getFieldValue("description"),
+        tags: form
+          .getFieldValue("tags")
+          ?.filter((tag: string | number) => Number.isInteger(tag))
+          .concat(savedTagIds),
+      },
+      refetchQueries: [CONFIGURATIONS_QUERY],
+    }
+  );
+
+  const inputsDisabled = creatingConfiguration || creatingTags;
+
+  const onReset = () => {
+    form.resetFields();
+  };
+
+  const onFinish = async (values: ConfigurationInputs) => {
+    if (values.tags?.length) {
+      const { data } = await createTags();
+      savedTagIds =
+        data?.createTags?.map((createdTag: Tag) => createdTag.id) || [];
+    }
+    await createConfiguration();
+    onReset();
+  };
+
+  return (
+    <Card>
+      <Title level={5}>Add New </Title>
+      <Form
+        layout="vertical"
+        form={form}
+        name="control-hooks"
+        onFinish={onFinish}
+      >
+        <Form.Item
+          name="name"
+          label="Name"
+          rules={[{ required: true, message: "Please input Name!" }]}
+        >
+          <Input placeholder="Name" disabled={inputsDisabled} />
+        </Form.Item>
+        <Form.Item
+          name="description"
+          label="Description"
+          rules={[{ required: true, message: "Please input Description!" }]}
+        >
+          <Input placeholder="Description" disabled={inputsDisabled} />
+        </Form.Item>
+        <Form.Item name="tags" label="Tags">
+          <Select
+            mode="tags"
+            style={{ width: "100%" }}
+            placeholder="Select Tags"
+            maxTagCount={4}
+            disabled={inputsDisabled}
+          >
+            {data?.tags.map((tag: Tag) => (
+              <Option value={tag.id} key={`tag_${tag.id}`}>
+                {tag.name}
+              </Option>
+            ))}
+          </Select>
+        </Form.Item>
+        <Form.Item className="text-right">
+          <Space>
+            <Button
+              type="default"
+              htmlType="button"
+              onClick={onReset}
+              disabled={inputsDisabled}
+            >
+              Reset{" "}
+            </Button>
+            <Button type="primary" htmlType="submit" disabled={inputsDisabled}>
+              Add{" "}
+            </Button>
+          </Space>
+        </Form.Item>
+      </Form>
+    </Card>
+  );
+};
+
+export default AddNewConfiguration;
