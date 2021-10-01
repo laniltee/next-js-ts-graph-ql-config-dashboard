@@ -49,7 +49,7 @@ const AddNewConfiguration = (): JSX.Element => {
   const { data } = useQuery(TAGS_QUERY);
   const [form] = Form.useForm();
 
-  const [createTags] = useMutation(TAGS_MUTATION, {
+  const [createTags, { loading: creatingTags }] = useMutation(TAGS_MUTATION, {
     variables: {
       tags: form
         .getFieldValue("tags")
@@ -58,17 +58,22 @@ const AddNewConfiguration = (): JSX.Element => {
     refetchQueries: [TAGS_QUERY],
   });
 
-  const [createConfiguration] = useMutation(CONFIGURATION_MUTATION, {
-    variables: {
-      name: form.getFieldValue("name"),
-      description: form.getFieldValue("description"),
-      tags: form
-        .getFieldValue("tags")
-        ?.filter((tag: string | number) => Number.isInteger(tag))
-        .concat(savedTagIds),
-    },
-    refetchQueries: [CONFIGURATIONS_QUERY],
-  });
+  const [createConfiguration, { loading: creatingConfiguration }] = useMutation(
+    CONFIGURATION_MUTATION,
+    {
+      variables: {
+        name: form.getFieldValue("name"),
+        description: form.getFieldValue("description"),
+        tags: form
+          .getFieldValue("tags")
+          ?.filter((tag: string | number) => Number.isInteger(tag))
+          .concat(savedTagIds),
+      },
+      refetchQueries: [CONFIGURATIONS_QUERY],
+    }
+  );
+
+  const inputsDisabled = creatingConfiguration || creatingTags;
 
   const onReset = () => {
     form.resetFields();
@@ -98,14 +103,14 @@ const AddNewConfiguration = (): JSX.Element => {
           label="Name"
           rules={[{ required: true, message: "Please input Name!" }]}
         >
-          <Input placeholder="Name" />
+          <Input placeholder="Name" disabled={inputsDisabled} />
         </Form.Item>
         <Form.Item
           name="description"
           label="Description"
           rules={[{ required: true, message: "Please input Description!" }]}
         >
-          <Input placeholder="Description" />
+          <Input placeholder="Description" disabled={inputsDisabled} />
         </Form.Item>
         <Form.Item name="tags" label="Tags">
           <Select
@@ -113,6 +118,7 @@ const AddNewConfiguration = (): JSX.Element => {
             style={{ width: "100%" }}
             placeholder="Select Tags"
             maxTagCount={4}
+            disabled={inputsDisabled}
           >
             {data?.tags.map((tag: Tag) => (
               <Option value={tag.id} key={`tag_${tag.id}`}>
@@ -123,10 +129,15 @@ const AddNewConfiguration = (): JSX.Element => {
         </Form.Item>
         <Form.Item className="text-right">
           <Space>
-            <Button type="default" htmlType="button" onClick={onReset}>
+            <Button
+              type="default"
+              htmlType="button"
+              onClick={onReset}
+              disabled={inputsDisabled}
+            >
               Reset{" "}
             </Button>
-            <Button type="primary" htmlType="submit">
+            <Button type="primary" htmlType="submit" disabled={inputsDisabled}>
               Add{" "}
             </Button>
           </Space>
