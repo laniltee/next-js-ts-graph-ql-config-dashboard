@@ -1,49 +1,50 @@
 type Query {
-  configurations: [Configuration]
-  organizations: [Organization]
-  users: [User]
-  tags: [Tag]
+    configurations: [Configuration]
+    organizations: [Organization]
+    users: [User]
+    tags: [Tag]
 }
 
 type Mutation {
-  post(url: String!, description: String!): Link!
-  createConfiguration(
-    name: String!
-    description: String
-    tags: [String]
-  ): Configuration!
+    createConfiguration(
+        name: String!
+        description: String
+        tags: [Int]
+    ): Configuration!
+
+    createTags(tags: [String!]!): [Tag]
 }
 
 type Link {
-  id: ID!
-  description: String!
-  url: String!
+    id: ID!
+    description: String!
+    url: String!
 }
 
 type Tag {
-  id: Int!
-  name: String!
+    id: Int!
+    name: String!
 }
 
 type Configuration {
-  name: String!
-  description: String!
-  tags: [ConfigurationTags]
+    name: String!
+    description: String!
+    tags: [ConfigurationTags]
 }
 
 type ConfigurationTags {
-  tag: Tag
+    tag: Tag
 }
 
 type Organization {
-  id: Float!
-  name: String!
-  configurations: [Configuration]
+    id: Float!
+    name: String!
+    configurations: [Configuration]
 }
 
 type User {
-  id: Float!
-  name: String!
-  organization: Organization
-  configurations: [Configuration]
+    id: Float!
+    name: String!
+    organization: Organization
+    configurations: [Configuration]
 }

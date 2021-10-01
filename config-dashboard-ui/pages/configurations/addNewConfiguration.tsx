@@ -60,6 +60,7 @@ const AddNewConfiguration = (): JSX.Element => {
             mode="tags"
             style={{ width: "100%" }}
             placeholder="Select Tags"
+            maxTagCount={4}
           >
             {data?.tags.map((tag: Tag) => (
               <Option value={tag.id} key={`tag_${tag.id}`}>

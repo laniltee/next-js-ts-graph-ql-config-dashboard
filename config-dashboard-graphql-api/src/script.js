@@ -6,9 +6,10 @@ const prisma = new PrismaClient();
 
 // 3
 async function main() {
-  const data = await prisma.configuration.findMany({
-    include: { tags: { include: { tag: true } } },
+  await prisma.tag.createMany({
+    data: [["Tag X", "Tag Y"].map((tag) => ({ name: tag }))],
   });
+  const data = await prisma.tag.findMany({});
   console.log(JSON.stringify(data, null, 4));
 }
 
