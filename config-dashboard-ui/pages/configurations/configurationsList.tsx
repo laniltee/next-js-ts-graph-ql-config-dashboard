@@ -1,6 +1,6 @@
 import { Card, Typography, Table, Button, Space, Tag as AntDTag } from "antd";
 import { useQuery, gql } from "@apollo/client";
-import { Configuration, ConfigurationTag } from "../../types/graphQlTypes";
+import { Configuration, Tag } from "../../types/graphQlTypes";
 
 const { Title } = Typography;
 
@@ -21,8 +21,8 @@ const columns = [
     key: "tags",
     render: (text = null, record: Configuration) => (
       <>
-        {record.tags.map((tag: ConfigurationTag, index: number) => (
-          <AntDTag key={`tag_${index}`}>{tag.tag.name}</AntDTag>
+        {record.tags.map((tag: Tag, index: number) => (
+          <AntDTag key={`tag_${index}`}>{tag.name}</AntDTag>
         ))}
       </>
     ),
@@ -42,15 +42,13 @@ const columns = [
   },
 ];
 
-const CONFIGURATIONS_QUERY = gql`
+export const CONFIGURATIONS_QUERY = gql`
   {
     configurations {
       description
       name
       tags {
-        tag {
-          name
-        }
+        name
       }
     }
   }
@@ -62,11 +60,7 @@ const ConfigurationsList = (): JSX.Element => {
   return (
     <Card>
       <Title level={5}>Available Configurations</Title>
-      <Table
-        dataSource={data?.configurations}
-        columns={columns}
-        pagination={false}
-      />
+      <Table dataSource={data?.configurations} columns={columns} />
     </Card>
   );
 };

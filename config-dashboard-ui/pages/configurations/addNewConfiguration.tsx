@@ -1,6 +1,7 @@
 import { Button, Card, Form, Input, Typography, Select, Space } from "antd";
-import { useQuery, gql } from "@apollo/client";
+import { useQuery, gql, useMutation } from "@apollo/client";
 import { Tag } from "../../types/graphQlTypes";
+import { CONFIGURATIONS_QUERY } from "./configurationsList";
 
 const { Title } = Typography;
 const { Option } = Select;
@@ -14,22 +15,73 @@ const TAGS_QUERY = gql`
   }
 `;
 
+const TAGS_MUTATION = gql`
+  mutation TagsMutation($tags: [String!]!) {
+    createTags(tags: $tags) {
+      id
+      name
+    }
+  }
+`;
+
+const CONFIGURATION_MUTATION = gql`
+  mutation Mutation($name: String!, $description: String, $tags: [Int]) {
+    createConfiguration(name: $name, description: $description, tags: $tags) {
+      id
+      description
+      name
+      tags {
+        name
+      }
+    }
+  }
+`;
+
 type ConfigurationInputs = {
   name: string;
   description: string;
   tags?: string[];
 };
 
+let savedTagIds: number[] = [];
+
 const AddNewConfiguration = (): JSX.Element => {
   const { data } = useQuery(TAGS_QUERY);
   const [form] = Form.useForm();
+
+  const [createTags] = useMutation(TAGS_MUTATION, {
+    variables: {
+      tags: form
+        .getFieldValue("tags")
+        ?.filter((tag: string | number) => !Number.isInteger(tag)),
+    },
+    refetchQueries: [TAGS_QUERY],
+  });
+
+  const [createConfiguration] = useMutation(CONFIGURATION_MUTATION, {
+    variables: {
+      name: form.getFieldValue("name"),
+      description: form.getFieldValue("description"),
+      tags: form
+        .getFieldValue("tags")
+        ?.filter((tag: string | number) => Number.isInteger(tag))
+        .concat(savedTagIds),
+    },
+    refetchQueries: [CONFIGURATIONS_QUERY],
+  });
 
   const onReset = () => {
     form.resetFields();
   };
 
-  const onFinish = (values: ConfigurationInputs) => {
-    console.log(values);
+  const onFinish = async (values: ConfigurationInputs) => {
+    if (values.tags?.length) {
+      const { data } = await createTags();
+      savedTagIds =
+        data?.createTags?.map((createdTag: Tag) => createdTag.id) || [];
+    }
+    await createConfiguration();
+    onReset();
   };
 
   return (
