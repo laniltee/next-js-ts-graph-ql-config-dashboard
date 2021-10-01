@@ -15,25 +15,16 @@ type Mutation {
     createTags(tags: [String!]!): [Tag]
 }
 
-type Link {
-    id: ID!
-    description: String!
-    url: String!
-}
-
 type Tag {
     id: Int!
     name: String!
 }
 
 type Configuration {
+    id: Int!
     name: String!
     description: String!
-    tags: [ConfigurationTags]
-}
-
-type ConfigurationTags {
-    tag: Tag
+    tags: [Tag]
 }
 
 type Organization {

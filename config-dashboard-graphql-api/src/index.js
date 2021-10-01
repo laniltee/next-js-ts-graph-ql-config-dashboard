@@ -14,7 +14,7 @@ const resolvers = {
   Query: {
     configurations: async (parent, args, context) => {
       return await context.prisma.configuration.findMany({
-        include: { tags: { include: { tag: true } } },
+        include: { tags: true },
       });
     },
 
@@ -36,11 +36,34 @@ const resolvers = {
       return savedTags;
     },
 
-    createConfiguration: async (parent, args, { prisma }, info) => {},
+    createConfiguration: async (parent, args, context, info) => {
+      const createdConfiguration = await context.prisma.configuration.create({
+        data: {
+          name: args.name,
+          description: args.description,
+        },
+      });
+
+      await context.prisma.configuration.update({
+        where: { id: createdConfiguration.id },
+        data: {
+          tags: {
+            set: (args.tags || []).map((tag) => ({ id: tag })),
+          },
+        },
+      });
+
+      const findConfigurationsById =
+        await context.prisma.configuration.findMany({
+          where: { id: createdConfiguration.id },
+          include: { tags: true },
+        });
+
+      return findConfigurationsById[0];
+    },
   },
 };
 
-// 3
 const server = new ApolloServer({
   typeDefs,
   resolvers,
