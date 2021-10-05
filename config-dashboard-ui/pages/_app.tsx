@@ -10,6 +10,7 @@ import {
   createHttpLink,
   InMemoryCache,
 } from "@apollo/client";
+import CapabilitiesContext from "../context/CapabilitiesContext";
 
 const httpLink = createHttpLink({
   uri: "http://localhost:4000",
@@ -20,11 +21,20 @@ const client = new ApolloClient({
   cache: new InMemoryCache(),
 });
 
+const capabilities = [
+  "VIEW_CONFIGURATIONS",
+  "ADD_CONFIGURATION",
+  "EDIT_CONFIGURATION",
+  "DELETE_CONFIGURATION",
+];
+
 const MyApp = ({ Component, pageProps }: AppProps) => {
   return (
     <Layout>
       <ApolloProvider client={client}>
-        <Component {...pageProps} />
+        <CapabilitiesContext.Provider value={capabilities}>
+          <Component {...pageProps} />
+        </CapabilitiesContext.Provider>
       </ApolloProvider>
     </Layout>
   );

@@ -1,6 +1,15 @@
-import { Card, Typography, Table, Button, Space, Tag as AntDTag } from "antd";
+import {
+  Card,
+  Typography,
+  Table,
+  Button,
+  Space,
+  Tag as AntDTag,
+  Empty,
+} from "antd";
 import { useQuery, gql } from "@apollo/client";
 import { Configuration, Tag } from "../../types/graphQlTypes";
+import CapableBoundary from "../../components/CapableBoundary";
 
 const { Title } = Typography;
 
@@ -60,7 +69,13 @@ const ConfigurationsList = (): JSX.Element => {
   return (
     <Card>
       <Title level={5}>Available Configurations</Title>
-      <Table dataSource={data?.configurations} columns={columns} />
+      <CapableBoundary
+        capability="VIEW_CONFIGURATIONS"
+        disableBy="hiding"
+        component={<Empty description="No Permissions" />}
+      >
+        <Table dataSource={data?.configurations} columns={columns} />
+      </CapableBoundary>
     </Card>
   );
 };

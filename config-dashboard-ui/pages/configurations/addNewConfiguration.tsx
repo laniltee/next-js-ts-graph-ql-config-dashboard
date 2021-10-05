@@ -2,6 +2,7 @@ import { Button, Card, Form, Input, Typography, Select, Space } from "antd";
 import { useQuery, gql, useMutation } from "@apollo/client";
 import { Tag } from "../../types/graphQlTypes";
 import { CONFIGURATIONS_QUERY } from "./configurationsList";
+import CapableBoundary from "../../components/CapableBoundary";
 
 const { Title } = Typography;
 const { Option } = Select;
@@ -137,9 +138,18 @@ const AddNewConfiguration = (): JSX.Element => {
             >
               Reset{" "}
             </Button>
-            <Button type="primary" htmlType="submit" disabled={inputsDisabled}>
-              Add{" "}
-            </Button>
+            <CapableBoundary
+              capability="ADD_CONFIGURATION"
+              disableBy="disabling"
+            >
+              <Button
+                type="primary"
+                htmlType="submit"
+                disabled={inputsDisabled}
+              >
+                Add{" "}
+              </Button>
+            </CapableBoundary>
           </Space>
         </Form.Item>
       </Form>
