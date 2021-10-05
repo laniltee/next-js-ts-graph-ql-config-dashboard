@@ -24,7 +24,11 @@ const CapableBoundary = ({
     return null;
   } else {
     return (
-      <Tooltip title={`You don't have sufficient permissions`}>
+      <Tooltip
+        title={`You don't have sufficient permissions to ${capability
+          .replaceAll("_", " ")
+          .toLowerCase()}`}
+      >
         {cloneElement(children, { disabled: true })}
       </Tooltip>
     );
